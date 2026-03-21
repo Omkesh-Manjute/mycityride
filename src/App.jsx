@@ -153,6 +153,94 @@ function GPSMap({T,showDriver=false,progress=0,compact=false,surge=1}){
   </svg>;
 }
 
+
+/* ══════════════════════════════════════════════════════
+   Location Search Screen
+══════════════════════════════════════════════════════ */
+function SearchScreen({T, value, onChange, onBack}) {
+  const [query, setQuery] = useState(value||"");
+  const [recent] = useState([
+    {icon:"🏠", name:"Home", addr:"Ramdaspeth, Nagpur"},
+    {icon:"💼", name:"Office", addr:"Civil Lines, Nagpur"},
+    {icon:"✈️", name:"Airport", addr:"Dr. Babasaheb Ambedkar Intl. Airport"},
+  ]);
+  const suggestions = [
+    {icon:"📍", name:"Sitabuldi Square", addr:"Sitabuldi, Nagpur"},
+    {icon:"📍", name:"Sadar Bazaar", addr:"Sadar, Nagpur"},
+    {icon:"📍", name:"AIIMS Nagpur", addr:"Mihan, Nagpur"},
+    {icon:"📍", name:"Wardha Road", addr:"Wardha Rd, Nagpur"},
+    {icon:"📍", name:"Dharampeth", addr:"Dharampeth, Nagpur"},
+    {icon:"📍", name:"Itwari Station", addr:"Itwari, Nagpur"},
+    {icon:"📍", name:"Nagpur Railway Station", addr:"Kasturchand Park, Nagpur"},
+    {icon:"📍", name:"Zero Mile", addr:"Zero Mile, Nagpur"},
+    {icon:"📍", name:"LIT Square", addr:"Laxmi Nagar, Nagpur"},
+    {icon:"📍", name:"Koradi Road", addr:"Koradi, Nagpur"},
+  ];
+  const filtered = query.length > 0
+    ? suggestions.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || s.addr.toLowerCase().includes(query.toLowerCase()))
+    : suggestions;
+  const inRef = useRef();
+  useEffect(()=>{ setTimeout(()=>inRef.current?.focus(), 100); },[]);
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",height:748,background:T.bg}}>
+      {/* Header */}
+      <div style={{padding:"14px 16px",display:"flex",alignItems:"center",gap:10,borderBottom:`1px solid ${T.border}`,background:T.surface}}>
+        <button onClick={onBack} style={{width:36,height:36,borderRadius:12,background:T.card,border:`1px solid ${T.border}`,cursor:"pointer",fontSize:16,color:T.text,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>←</button>
+        <div style={{flex:1,background:T.input,border:`1.5px solid ${T.accent}`,borderRadius:14,display:"flex",alignItems:"center",gap:10,padding:"0 14px",boxShadow:`0 0 0 3px ${T.accentSoft}`}}>
+          <span style={{color:T.accent,fontSize:14}}>🔍</span>
+          <input ref={inRef} value={query} onChange={e=>setQuery(e.target.value)}
+            placeholder="Search destination in Nagpur..."
+            style={{flex:1,background:"transparent",border:"none",outline:"none",padding:"13px 0",color:T.text,fontSize:14,fontFamily:FB}}
+            autoFocus/>
+          {query&&<button onClick={()=>setQuery("")} style={{background:"none",border:"none",color:T.textMuted,cursor:"pointer",fontSize:16,padding:"0 4px"}}>✕</button>}
+        </div>
+      </div>
+
+      <div style={{flex:1,overflowY:"auto",scrollbarWidth:"none"}}>
+        {/* Current location */}
+        <div onClick={()=>onChange("Current Location")} style={{padding:"14px 18px",display:"flex",alignItems:"center",gap:14,borderBottom:`1px solid ${T.border}`,cursor:"pointer"}}>
+          <div style={{width:40,height:40,borderRadius:13,background:T.accentSoft,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>📍</div>
+          <div>
+            <div style={{fontWeight:700,fontSize:14,color:T.accent,fontFamily:F}}>Use current location</div>
+            <div style={{fontSize:12,color:T.textSub,fontFamily:FB,marginTop:2}}>Sitabuldi, Nagpur</div>
+          </div>
+        </div>
+
+        {/* Recent - only when no query */}
+        {!query && <>
+          <div style={{padding:"12px 18px 6px",fontSize:10,fontWeight:700,color:T.textMuted,fontFamily:FB,textTransform:"uppercase",letterSpacing:0.6}}>Recent</div>
+          {recent.map((r,i)=>(
+            <div key={i} onClick={()=>onChange(r.name)} style={{padding:"12px 18px",display:"flex",alignItems:"center",gap:14,borderBottom:`1px solid ${T.border}20`,cursor:"pointer"}}>
+              <div style={{width:40,height:40,borderRadius:13,background:T.card,border:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{r.icon}</div>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:600,fontSize:14,fontFamily:F}}>{r.name}</div>
+                <div style={{fontSize:11,color:T.textSub,fontFamily:FB,marginTop:2}}>{r.addr}</div>
+              </div>
+            </div>
+          ))}
+        </>}
+
+        {/* Suggestions */}
+        <div style={{padding:"12px 18px 6px",fontSize:10,fontWeight:700,color:T.textMuted,fontFamily:FB,textTransform:"uppercase",letterSpacing:0.6}}>
+          {query?"Search Results":"Popular in Nagpur"}
+        </div>
+        {filtered.map((s,i)=>(
+          <div key={i} onClick={()=>onChange(s.name)} style={{padding:"12px 18px",display:"flex",alignItems:"center",gap:14,borderBottom:`1px solid ${T.border}20`,cursor:"pointer",transition:"background 0.15s"}}>
+            <div style={{width:40,height:40,borderRadius:13,background:T.surface,border:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{s.icon}</div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:600,fontSize:14,fontFamily:F}}>{s.name}</div>
+              <div style={{fontSize:11,color:T.textSub,fontFamily:FB,marginTop:2}}>{s.addr}</div>
+            </div>
+            <span style={{color:T.textMuted,fontSize:16}}>›</span>
+          </div>
+        ))}
+        {filtered.length===0&&<div style={{padding:"40px 18px",textAlign:"center",color:T.textMuted,fontFamily:FB,fontSize:13}}>No results for "{query}"</div>}
+      </div>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    SOS Modal
 ══════════════════════════════════════════════════════ */
@@ -432,12 +520,14 @@ function UserApp({T}){
   const [otp,setOtp]=useState(["","","",""]);
   const [selV,setSelV]=useState("auto");
   const [toInput,setToInput]=useState("");
+  const [fromInput]=useState("Sitabuldi, Nagpur");
+  const [searchOpen,setSearchOpen]=useState(false);
   const [finding,setFinding]=useState(false);
   const [rideProgress,setRideProgress]=useState(0);
   const [ridePhase,setRidePhase]=useState("arriving");
   const [showSOS,setShowSOS]=useState(false);
   const [appliedPromo,setAppliedPromo]=useState(null);
-  const [surge]=useState(1.4);
+  const [surge]=useState(1.0);
   const refs=[useRef(),useRef(),useRef(),useRef()];
 
   const handleOtp=(i,v)=>{if(!/^\d*$/.test(v))return;const n=[...otp];n[i]=v.slice(-1);setOtp(n);if(v&&i<3)refs[i+1].current?.focus();};
@@ -458,6 +548,7 @@ function UserApp({T}){
   const finalPrice=Math.max(basePrice-discountAmt,0);
 
   // Sub-screens
+  if(screen==="search") return <PhoneShell T={T}><SBar T={T}/><SearchScreen T={T} value={toInput} onChange={(v)=>{setToInput(v);setScreen("home");}} onBack={()=>setScreen("home")}/></PhoneShell>;
   if(screen==="chat") return <PhoneShell T={T}><SBar T={T}/><div style={{height:748,overflowY:"auto",scrollbarWidth:"none"}}><ChatScreen T={T} onBack={()=>setScreen("tracking")}/></div></PhoneShell>;
   if(screen==="promo") return <PhoneShell T={T}><SBar T={T}/><div style={{height:748,overflowY:"auto",scrollbarWidth:"none"}}><PromoScreen T={T} onBack={()=>setScreen("home")} onApply={setAppliedPromo} applied={appliedPromo}/></div></PhoneShell>;
   if(screen==="schedule") return <PhoneShell T={T}><SBar T={T}/><div style={{height:748,overflowY:"auto",scrollbarWidth:"none"}}><ScheduleScreen T={T} onBack={()=>setScreen("home")} onSchedule={()=>setScreen("home")}/></div></PhoneShell>;
@@ -543,7 +634,7 @@ function UserApp({T}){
           </div>
 
           {/* Where to */}
-          <div style={{background:T.input,border:`1.5px solid ${T.border}`,borderRadius:14,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:10,cursor:"pointer"}}>
+          <div onClick={()=>setScreen("search")} style={{background:T.input,border:`1.5px solid ${T.border}`,borderRadius:14,padding:"14px 16px",marginBottom:12,display:"flex",alignItems:"center",gap:10,cursor:"pointer",transition:"all 0.15s"}}>
             <div style={{width:9,height:9,borderRadius:3,background:T.accent,flexShrink:0}}/>
             <span style={{color:toInput?T.text:T.textMuted,fontSize:14,fontFamily:FB,flex:1}}>{toInput||"Where are you going?"}</span>
             <span style={{fontSize:17,opacity:0.4}}>🔍</span>
@@ -602,7 +693,9 @@ function UserApp({T}){
               <div style={{fontSize:9,fontWeight:700,color:T.textSub,fontFamily:FB}}>{p.split(" ")[1]}</div>
             </div>)}
           </div>
-          <Btn T={T} primary full onClick={()=>setFinding(true)}>Book {selVehicle?.name} · ₹{Math.round((selVehicle?.priceNum||78)*surge)-discountAmt}</Btn>
+          <Btn T={T} primary full disabled={!toInput} onClick={()=>{if(toInput)setFinding(true);}}>
+            {toInput ? `Book ${selVehicle?.name} · ₹${Math.round((selVehicle?.priceNum||78)*surge)-discountAmt}` : "Select destination to book"}
+          </Btn>
         </div>
       </div>}
 
