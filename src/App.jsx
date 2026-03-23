@@ -1050,7 +1050,7 @@ function DriverApp({ T, isDark }) {
     setActiveRide(rideReq)
     setRideReq(null)
   }
-  const reject = () => { setRideReq(null); setTimeout(() => { if(online) { setRideReq({...rideReq||{id:"r2",pickup_address:"Civil Lines",drop_address:"Dharampeth",fare:78,users:{name:"Amit T."}}); setTimer(20) } }, 7000) }
+  const reject = () => { setRideReq(null); setTimeout(() => { if(online) { setRideReq({...rideReq||{id:"r2",pickup_address:"Civil Lines",drop_address:"Dharampeth",fare:78,users:{name:"Amit T."}}}); setTimer(20) } }, 7000) }
   const complete = async () => {
     if (activeRide?.id) await updateRideStatus(activeRide.id, "completed")
     setActiveRide(null)
